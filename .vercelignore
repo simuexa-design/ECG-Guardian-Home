@@ -1,0 +1,18 @@
+# Vercel Deployment Exclusion List
+# Keeps the Serverless Function bundle lightweight (< 50 MB)
+
+# Document deliverables (preserved on GitHub)
+*.pdf
+*.pptx
+
+# Local batch & execution scripts
+*.bat
+.git
+.github
+
+# Heavy training datasets & raw benchmarks
+ptbxl_data/
+models_saved/
+sample_files/
+tests/
+backend/trained_models/

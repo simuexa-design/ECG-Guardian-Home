@@ -1,6 +1,6 @@
 # =============================================================================
 # EXPLAINABLE DEEP LEARNING FOR MULTI-LABEL ECG ARRHYTHMIA CLASSIFICATION
-# Python Dependencies for Production & Vercel Cloud Deployment
+# Production Cloud & Vercel Serverless Dependencies
 # =============================================================================
 
 # Core Web & API Backend
@@ -11,18 +11,8 @@ flask-cors>=4.0.0
 numpy>=1.24.0
 scipy>=1.10.0
 pandas>=2.0.0
-scikit-learn>=1.2.0
 
-# Deep Learning (PyTorch Engine)
-torch>=2.0.0
-
-# Multi-Modal Ingestion & Signal Digitization (Cloud-compatible Headless)
+# Multi-Modal Ingestion & Signal Digitization (Cloud Headless)
 Pillow>=9.5.0
 opencv-python-headless>=4.7.0
 PyMuPDF>=1.22.0
-
-# Visualization, Academic Reporting & Presentation Generation
-matplotlib>=3.7.0
-reportlab>=3.6.0
-plotly>=5.14.0
-python-pptx>=1.0.0
