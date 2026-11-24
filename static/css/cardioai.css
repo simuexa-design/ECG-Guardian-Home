@@ -1,0 +1,211 @@
+/* CardioAI - Premium Medical AI Dashboard Styling */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+  --bg-primary: #070c18;
+  --bg-secondary: #0b1528;
+  --bg-card: #0f1c34;
+  --bg-card-hover: #162646;
+  --border-card: rgba(0, 229, 255, 0.16);
+  --border-card-hover: rgba(0, 229, 255, 0.45);
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --accent-teal: #00e5ff;
+  --accent-blue: #0077b6;
+  --accent-emerald: #10b981;
+  --accent-amber: #f59e0b;
+  --accent-red: #ef4444;
+}
+
+/* Global Container Tweaks */
+.main .block-container {
+  padding-top: 2rem !important;
+  padding-bottom: 3rem !important;
+  max-width: 1380px !important;
+}
+
+/* Custom Header Banner */
+.cardioai-header {
+  background: linear-gradient(135deg, #0b1528 0%, #080f1e 100%);
+  border: 1px solid var(--border-card);
+  border-radius: 14px;
+  padding: 1.5rem 2rem;
+  margin-bottom: 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+  position: relative;
+  overflow: hidden;
+}
+
+.cardioai-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 5px;
+  height: 100%;
+  background: linear-gradient(180deg, #00e5ff 0%, #0077b6 100%);
+}
+
+.cardioai-title-wrap h1 {
+  font-family: 'Inter', sans-serif;
+  font-size: 1.85rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: #ffffff;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.cardioai-title-wrap p {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  margin-top: 0.35rem;
+  margin-bottom: 0;
+}
+
+/* Rounded Cards */
+.cardio-card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-card);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1.25rem;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.cardio-card:hover {
+  border-color: var(--border-card-hover);
+  box-shadow: 0 10px 32px rgba(0, 229, 255, 0.12);
+  transform: translateY(-2px);
+}
+
+.cardio-card-header {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Feature Badge */
+.cardio-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.7rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.badge-teal {
+  background: rgba(0, 229, 255, 0.12);
+  color: #00e5ff;
+  border: 1px solid rgba(0, 229, 255, 0.3);
+}
+
+.badge-emerald {
+  background: rgba(16, 185, 129, 0.12);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.badge-amber {
+  background: rgba(245, 158, 11, 0.12);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.badge-red {
+  background: rgba(239, 68, 68, 0.12);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+/* Telemetry Metric Pill */
+.telemetry-card {
+  background: rgba(15, 28, 52, 0.75);
+  border: 1px solid rgba(0, 229, 255, 0.15);
+  border-radius: 10px;
+  padding: 1rem;
+  text-align: center;
+}
+
+.telemetry-title {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  letter-spacing: 0.06em;
+  margin-bottom: 0.25rem;
+}
+
+.telemetry-value {
+  font-size: 1.45rem;
+  font-weight: 700;
+  color: #00e5ff;
+}
+
+/* Workflow Step Item */
+.workflow-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.workflow-num {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #00e5ff, #0077b6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #000;
+  flex-shrink: 0;
+  box-shadow: 0 0 15px rgba(0, 229, 255, 0.35);
+}
+
+/* Custom Alert Box */
+.cardio-alert {
+  padding: 1rem 1.25rem;
+  border-radius: 10px;
+  margin-bottom: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.alert-info-custom {
+  background: rgba(0, 119, 182, 0.15);
+  border: 1px solid rgba(0, 229, 255, 0.3);
+  color: #e0f2fe;
+}
+
+.alert-warning-custom {
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  color: #fef3c7;
+}
+
+.alert-success-custom {
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  color: #d1fae5;
+}
+

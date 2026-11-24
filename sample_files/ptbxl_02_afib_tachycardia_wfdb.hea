@@ -1,0 +1,13 @@
+ptbxl_02_afib_tachycardia_wfdb 12 100 1000
+ptbxl_02_afib_tachycardia_wfdb.dat 16 12019.65953265305(-14301)/mV 16 0 -21754 51375 0 I
+ptbxl_02_afib_tachycardia_wfdb.dat 16 11846.615447960052(-14273)/mV 16 0 -21431 13835 0 II
+ptbxl_02_afib_tachycardia_wfdb.dat 16 10473.792788913313(-12204)/mV 16 0 -15152 51229 0 III
+ptbxl_02_afib_tachycardia_wfdb.dat 16 11957.421199010214(13631)/mV 16 0 24010 65047 0 aVR
+ptbxl_02_afib_tachycardia_wfdb.dat 16 11190.157523129183(-11113)/mV 16 0 -10166 28125 0 aVL
+ptbxl_02_afib_tachycardia_wfdb.dat 16 11992.73937741175(-14387)/mV 16 0 -19117 30920 0 aVF
+ptbxl_02_afib_tachycardia_wfdb.dat 16 10765.952056368362(9648)/mV 16 0 19379 14210 0 V1
+ptbxl_02_afib_tachycardia_wfdb.dat 16 11925.39029516811(-13957)/mV 16 0 -18912 2164 0 V2
+ptbxl_02_afib_tachycardia_wfdb.dat 16 12098.424305637422(-14061)/mV 16 0 -19809 29256 0 V3
+ptbxl_02_afib_tachycardia_wfdb.dat 16 12093.619707814363(-15001)/mV 16 0 -21348 6746 0 V4
+ptbxl_02_afib_tachycardia_wfdb.dat 16 12149.654750117097(-14591)/mV 16 0 -21287 23538 0 V5
+ptbxl_02_afib_tachycardia_wfdb.dat 16 11727.260544984456(-14557)/mV 16 0 -23060 57536 0 V6

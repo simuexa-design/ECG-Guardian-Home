@@ -1,0 +1,35 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Environments & Virtualenvs
+venv/
+.venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# Operating System Files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDEs and Editors
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+*.swp
+*.swo
+
+# Runtime Logs & Temporary Output
+*.log
+temp/
+tmp/
+scratch/
+
+# Streamlit Local Runtime
+.streamlit/

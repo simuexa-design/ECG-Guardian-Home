@@ -1,0 +1,28 @@
+# =============================================================================
+# EXPLAINABLE DEEP LEARNING FOR MULTI-LABEL ECG ARRHYTHMIA CLASSIFICATION
+# Python Dependencies
+# =============================================================================
+
+# Core Web & API Backend
+flask>=2.3.0
+flask-cors>=4.0.0
+
+# Deep Learning & Scientific Computing
+torch>=2.0.0
+numpy>=1.24.0
+scipy>=1.10.0
+pandas>=2.0.0
+scikit-learn>=1.2.0
+
+# Multi-Modal Ingestion & Signal Digitization (PDF, Image, ECG scans)
+Pillow>=9.5.0
+opencv-python>=4.7.0
+PyMuPDF>=1.22.0
+
+# Visualization & Academic Report Generation
+matplotlib>=3.7.0
+reportlab>=3.6.0
+plotly>=5.14.0
+
+# Streamlit Companion Application (CardioAI)
+streamlit>=1.25.0

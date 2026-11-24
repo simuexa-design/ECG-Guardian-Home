@@ -1,0 +1,15 @@
+statement,description,diagnostic_class,rhythm
+SR,Sinus Rhythm,NORM,1
+AFIB,Atrial Fibrillation,AHR,1
+STACH,Sinus Tachycardia,AHR,1
+SBRAD,Sinus Bradycardia,AHR,1
+AFLT,Atrial Flutter,AHR,1
+SVT,Supraventricular Tachycardia,AHR,1
+PVC,Premature Ventricular Contraction,AHR,1
+PAC,Premature Atrial Contraction,AHR,1
+BIGU,Ventricular Bigeminy,AHR,1
+PACE,Pacemaker Rhythm,AHR,1
+NORM,Normal ECG,NORM,0
+MI,Myocardial Infarction,MI,0
+LBBB,Left Bundle Branch Block,CD,0
+RBBB,Right Bundle Branch Block,CD,0

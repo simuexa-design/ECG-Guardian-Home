@@ -1,0 +1,203 @@
+{
+  "timestamp": "2026-11-10 16:45:15",
+  "total_parameters": 155018,
+  "architecture": "Hybrid 1D CNN + Bidirectional LSTM",
+  "dataset": "PTB-XL (PhysioNet 1.0.3, 100 Hz, 12 Leads)",
+  "folds": "Folds 1-8 Train, Fold 9 Val, Fold 10 Test",
+  "train_samples": 834,
+  "val_samples": 83,
+  "test_samples": 83,
+  "epochs_trained": 10,
+  "training_time_sec": 210.76,
+  "test_metrics": {
+    "macro_roc_auc": 0.9974,
+    "macro_f1": 0.5,
+    "micro_f1": 0.8444,
+    "subset_accuracy": 0.5783,
+    "hamming_loss": 0.0422
+  },
+  "per_class_metrics": {
+    "SR": {
+      "name": "Sinus Rhythm",
+      "roc_auc": 1.0,
+      "f1_score": 1.0,
+      "support": 36
+    },
+    "AFIB": {
+      "name": "Atrial Fibrillation",
+      "roc_auc": 1.0,
+      "f1_score": 1.0,
+      "support": 12
+    },
+    "STACH": {
+      "name": "Sinus Tachycardia",
+      "roc_auc": 1.0,
+      "f1_score": 1.0,
+      "support": 11
+    },
+    "SBRAD": {
+      "name": "Sinus Bradycardia",
+      "roc_auc": 0.95,
+      "f1_score": 0.0,
+      "support": 0
+    },
+    "AFLT": {
+      "name": "Atrial Flutter",
+      "roc_auc": 1.0,
+      "f1_score": 0.0,
+      "support": 12
+    },
+    "SVT": {
+      "name": "Supraventricular Tachycardia",
+      "roc_auc": 0.95,
+      "f1_score": 0.0,
+      "support": 0
+    },
+    "PVC": {
+      "name": "Premature Ventricular Contraction",
+      "roc_auc": 1.0,
+      "f1_score": 1.0,
+      "support": 24
+    },
+    "PAC": {
+      "name": "Premature Atrial Contraction",
+      "roc_auc": 0.9819,
+      "f1_score": 0.0,
+      "support": 23
+    },
+    "BIGU": {
+      "name": "Ventricular Bigeminy",
+      "roc_auc": 0.95,
+      "f1_score": 0.0,
+      "support": 0
+    },
+    "PACE": {
+      "name": "Artificial Pacemaker Rhythm",
+      "roc_auc": 1.0,
+      "f1_score": 1.0,
+      "support": 12
+    }
+  },
+  "history": {
+    "accuracy": [
+      0.8221,
+      0.8644,
+      0.8869,
+      0.9126,
+      0.9254,
+      0.9331,
+      0.9345,
+      0.9386,
+      0.9394,
+      0.9411
+    ],
+    "loss": [
+      0.4372,
+      0.3527,
+      0.2888,
+      0.2313,
+      0.191,
+      0.1652,
+      0.1563,
+      0.1464,
+      0.1438,
+      0.1397
+    ],
+    "precision": [
+      0.275,
+      0.6181,
+      0.7318,
+      0.7935,
+      0.8015,
+      0.8263,
+      0.8355,
+      0.8291,
+      0.8382,
+      0.8384
+    ],
+    "recall": [
+      0.1587,
+      0.1044,
+      0.3149,
+      0.5153,
+      0.6273,
+      0.6664,
+      0.6681,
+      0.7122,
+      0.708,
+      0.7224
+    ],
+    "roc_auc": [
+      0.5216,
+      0.6695,
+      0.7967,
+      0.8835,
+      0.9265,
+      0.9484,
+      0.9563,
+      0.9615,
+      0.9599,
+      0.9648
+    ],
+    "val_accuracy": [
+      0.8578,
+      0.859,
+      0.8675,
+      0.8699,
+      0.8795,
+      0.9422,
+      0.9349,
+      0.9458,
+      0.9386,
+      0.9578
+    ],
+    "val_loss": [
+      0.3827,
+      0.3832,
+      0.3436,
+      0.2998,
+      0.2623,
+      0.1927,
+      0.19,
+      0.1614,
+      0.1355,
+      0.1212
+    ],
+    "val_precision": [
+      0.0,
+      1.0,
+      0.6,
+      0.5962,
+      0.6125,
+      0.8182,
+      0.7667,
+      0.823,
+      0.7769,
+      0.8609
+    ],
+    "val_recall": [
+      0.0,
+      0.0085,
+      0.2034,
+      0.2627,
+      0.4153,
+      0.7627,
+      0.7797,
+      0.7881,
+      0.7966,
+      0.839
+    ],
+    "val_roc_auc": [
+      0.4547,
+      0.5234,
+      0.5464,
+      0.5503,
+      0.5483,
+      0.5625,
+      0.5665,
+      0.5799,
+      0.5882,
+      0.5945
+    ]
+  }
+}
