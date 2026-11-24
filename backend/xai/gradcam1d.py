@@ -5,8 +5,15 @@ temporal segments and wave complexes (P-QRS-T) that contributed to each specific
 """
 
 import numpy as np
-import torch
-import torch.nn.functional as F
+
+try:
+    import torch
+    import torch.nn.functional as F
+    HAS_TORCH = True
+except (ImportError, Exception):
+    HAS_TORCH = False
+    torch = None
+    F = None
 
 
 class GradCAM1D:

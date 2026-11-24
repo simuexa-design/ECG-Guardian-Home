@@ -5,9 +5,19 @@ and Multi-Head Attention Pooling.
 """
 
 import math
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
+
+try:
+    import torch
+    import torch.nn as nn
+    import torch.nn.functional as F
+    HAS_TORCH = True
+    _NN_MODULE = nn.Module
+except (ImportError, Exception):
+    HAS_TORCH = False
+    torch = None
+    nn = None
+    F = None
+    _NN_MODULE = object
 
 # 10 Standard Multi-Label Arrhythmia Classes
 CLASSES = [
@@ -88,7 +98,7 @@ CLASS_NAMES = [c['name'] for c in CLASSES]
 NUM_CLASSES = len(CLASSES)
 
 
-class SqueezeExcitation1D(nn.Module):
+class SqueezeExcitation1D(_NN_MODULE):
     """1D Squeeze-and-Excitation channel attention."""
     def __init__(self, channels, reduction=4):
         super().__init__()
@@ -106,7 +116,7 @@ class SqueezeExcitation1D(nn.Module):
         return x * w
 
 
-class ResBlock1D(nn.Module):
+class ResBlock1D(_NN_MODULE):
     """1D Residual Block with Squeeze-and-Excitation."""
     def __init__(self, in_channels, out_channels, stride=1, dilation=1):
         super().__init__()
@@ -146,7 +156,7 @@ class ResBlock1D(nn.Module):
         return out
 
 
-class AttentionPooling1D(nn.Module):
+class AttentionPooling1D(_NN_MODULE):
     """Multi-Head Temporal Attention Pooling for 1D features."""
     def __init__(self, feature_dim):
         super().__init__()
@@ -167,7 +177,7 @@ class AttentionPooling1D(nn.Module):
         return pooled, attn.squeeze(-1)
 
 
-class ECGResNet1D(nn.Module):
+class ECGResNet1D(_NN_MODULE):
     """
     Multi-Scale Deep Residual Network for Multi-Label ECG Arrhythmia Classification.
     Accepts 1D ECG signals of shape (batch, 1, 2500).

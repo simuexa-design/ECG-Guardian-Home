@@ -5,7 +5,13 @@ such as ST elevation/depression, QRS widening, or ectopic beats.
 """
 
 import numpy as np
-import torch
+
+try:
+    import torch
+    HAS_TORCH = True
+except (ImportError, Exception):
+    HAS_TORCH = False
+    torch = None
 
 
 def compute_saliency_map(model, input_tensor, target_class_idx):
