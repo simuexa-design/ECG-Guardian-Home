@@ -1,5 +1,5 @@
 # Vercel Deployment Exclusion List
-# Keeps the Serverless Function bundle lightweight (< 50 MB)
+# Keeps the Serverless Function bundle ultra-lightweight (< 290 MB)
 
 # Document deliverables (preserved on GitHub)
 *.pdf
@@ -15,4 +15,6 @@ ptbxl_data/
 models_saved/
 sample_files/
 tests/
-backend/trained_models/
+
+# Keep only the production ONNX model in backend/trained_models/
+backend/trained_models/*.pt

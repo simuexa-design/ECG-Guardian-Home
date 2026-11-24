@@ -1,6 +1,6 @@
 # =============================================================================
 # EXPLAINABLE DEEP LEARNING FOR MULTI-LABEL ECG ARRHYTHMIA CLASSIFICATION
-# Production Cloud & Vercel Serverless Dependencies
+# Production Cloud & Vercel Serverless Dependencies (Total Bundle: < 290 MB)
 # =============================================================================
 
 # Core Web & API Backend
@@ -10,9 +10,10 @@ flask-cors>=4.0.0
 # Scientific Computing & Signal Telemetry
 numpy>=1.24.0
 scipy>=1.10.0
-pandas>=2.0.0
 
-# Multi-Modal Ingestion & Signal Digitization (Cloud Headless)
+# Multi-Modal Ingestion & Signal Digitization (Lightweight Cloud Stack)
 Pillow>=9.5.0
-opencv-python-headless>=4.7.0
-PyMuPDF>=1.22.0
+pypdf>=3.0.0
+
+# Real Deep Learning Multi-Label Inference (30 MB on Linux vs 5.9 GB PyTorch CUDA)
+onnxruntime>=1.16.0

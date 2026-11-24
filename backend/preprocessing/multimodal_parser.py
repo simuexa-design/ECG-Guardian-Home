@@ -14,16 +14,18 @@ import numpy as np
 from PIL import Image
 
 try:
-    import fitz  # PyMuPDF
+    import pypdf
+    HAS_PYPDF = True
+except ImportError:
+    HAS_PYPDF = False
+
+try:
+    import fitz  # PyMuPDF fallback
     HAS_PYMUPDF = True
 except ImportError:
     HAS_PYMUPDF = False
 
-try:
-    import cv2
-    HAS_OPENCV = True
-except ImportError:
-    HAS_OPENCV = False
+HAS_OPENCV = False
 
 try:
     from scipy.io import loadmat
@@ -178,27 +180,30 @@ def parse_pdf_ecg(pdf_bytes):
     all_pages_text = ""
     rendered_image = None
     
-    if HAS_PYMUPDF:
+    if HAS_PYPDF:
+        try:
+            reader = pypdf.PdfReader(io.BytesIO(pdf_bytes))
+            for p in reader.pages:
+                txt = p.extract_text()
+                if txt:
+                    all_pages_text += "\n" + txt
+                if rendered_image is None and hasattr(p, 'images') and len(p.images) > 0:
+                    try:
+                        rendered_image = Image.open(io.BytesIO(p.images[0].data))
+                    except Exception:
+                        pass
+        except Exception as e:
+            print(f"pypdf extraction error: {e}")
+    elif HAS_PYMUPDF:
         doc = fitz.open(stream=pdf_bytes, filetype="pdf")
         for page_idx in range(len(doc)):
             page = doc[page_idx]
             text = page.get_text()
             all_pages_text += "\n" + text
-            
-            # Render first page or page with ECG grid
             if rendered_image is None:
                 pix = page.get_pixmap(dpi=150)
                 rendered_image = Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
         doc.close()
-    else:
-        # PyPDF fallback for text
-        try:
-            import pypdf
-            reader = pypdf.PdfReader(io.BytesIO(pdf_bytes))
-            for p in reader.pages:
-                all_pages_text += "\n" + p.extract_text()
-        except Exception:
-            pass
             
     # Extract clinical measurements via regex patterns
     hr_match = re.search(r'Heart\s*Rate[:\s]*(\d+)\s*bpm', all_pages_text, re.IGNORECASE) or re.search(r'HR[:\s]*(\d+)', all_pages_text, re.IGNORECASE)
@@ -364,6 +369,11 @@ def parse_universal_ecg_file(filename, content_bytes, custom_fs=None):
     - Structured (.json, .mat)
     - Biosignals (.dat, .hea)
     """
+    # Auto-swap arguments if passed in reverse order
+    if isinstance(filename, (bytes, bytearray)) and isinstance(content_bytes, str):
+        filename, content_bytes = content_bytes, filename
+    if isinstance(filename, (bytes, bytearray)):
+        filename = filename.decode('utf-8', errors='ignore')
     lower = filename.lower()
     detected_fs = float(custom_fs) if custom_fs else TARGET_FS
     metadata = {}

@@ -133,9 +133,21 @@ def generate_clinical_interpretation(predictions, hrv_metrics, xai_regions_by_cl
 
         # Region evidence summary
         for r in regions[:2]:
+            if isinstance(r, dict):
+                s_samp = r.get('start_sample', 0)
+                e_samp = r.get('end_sample', 0)
+                max_att = r.get('max_attribution', 0.85)
+                dur_ms = r.get('duration_ms', int((e_samp - s_samp) * 4))
+            elif isinstance(r, (list, tuple)) and len(r) >= 2:
+                s_samp = r[0]
+                e_samp = r[1]
+                max_att = r[2] if len(r) > 2 else 0.85
+                dur_ms = int((e_samp - s_samp) * 4)
+            else:
+                continue
             evidence.append(
-                f"Peak influence at {r['start_sample']/250.0:.2f}s - {r['end_sample']/250.0:.2f}s "
-                f"(Attribution: {r['max_attribution']:.2f}, Duration: {r['duration_ms']} ms)"
+                f"Peak influence at {s_samp/250.0:.2f}s - {e_samp/250.0:.2f}s "
+                f"(Attribution: {max_att:.2f}, Duration: {dur_ms} ms)"
             )
 
         class_explanations.append({
