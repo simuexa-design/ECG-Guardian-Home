@@ -1,5 +1,5 @@
 [tool.vercel]
-entrypoint = "api/index.py"
+entrypoint = "index:app"
 
 [project]
 name = "ecg-guardian"
