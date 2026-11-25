@@ -2848,13 +2848,13 @@
 
     <div style="display: flex; align-items: center; gap: 10px;">
       <button class="btn btn-primary" onclick="quickLoginUser('dr_sonali')" style="border-radius: var(--radius-full); font-size: 0.85rem; padding: 7px 18px; font-weight: 700; background: #2563EB; color:#FFF;">
-        <i class="fa-solid fa-user-doctor"></i> Doctor Console (1-Click)
+        <i class="fa-solid fa-user-doctor"></i> Doctor Login
+      </button>
+      <button class="btn btn-outline" onclick="quickLoginUser('raj_verma')" style="border-radius: var(--radius-full); font-size: 0.85rem; padding: 7px 18px; font-weight: 700; border-color: #10B981; color: #10B981; background: #FFFFFF;">
+        <i class="fa-solid fa-user"></i> Patient Login
       </button>
       <button class="btn btn-ghost-pill" onclick="navigateTo('auth')">
-        Login
-      </button>
-      <button class="btn btn-dark-pill" onclick="openRegisterView('PATIENT')">
-        Register
+        Choose Role
       </button>
     </div>
   </header>
@@ -3061,7 +3061,10 @@
             <!-- Centered Action Pill Buttons -->
             <div class="hero-action-buttons">
               <button class="btn btn-primary btn-hero-primary" onclick="quickLoginUser('dr_sonali')">
-                <i class="fa-solid fa-user-doctor"></i> Launch Doctor Console (1-Click) <i class="fa-solid fa-arrow-right"></i>
+                <i class="fa-solid fa-user-doctor"></i> Doctor Console (1-Click) <i class="fa-solid fa-arrow-right"></i>
+              </button>
+              <button class="btn btn-outline btn-hero-secondary" onclick="quickLoginUser('raj_verma')" style="border-color:#10B981; color:#10B981;">
+                <i class="fa-solid fa-user"></i> Patient Portal (1-Click) <i class="fa-solid fa-arrow-right"></i>
               </button>
               <button class="btn btn-outline btn-hero-secondary" onclick="navigateTo('auth')">
                 Choose Role
