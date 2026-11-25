@@ -284,6 +284,22 @@ def classic_view():
     return render_template('index.html', active_view='landing')
 
 
+# Presentation Site Routes
+presentation_dir = os.path.join(PROJECT_ROOT, 'presentation_site')
+
+@app.route('/presentation')
+@app.route('/presentation/')
+def serve_presentation_index():
+    """Serves the interactive 16:9 medical presentation deck."""
+    return send_from_directory(presentation_dir, 'index.html')
+
+
+@app.route('/presentation/<path:filename>')
+def serve_presentation_static(filename):
+    """Serves presentation assets, screenshots, and export files (PDF/PPTX)."""
+    return send_from_directory(presentation_dir, filename)
+
+
 @app.route('/doctors-hero.jpg')
 @app.route('/images/doctors-hero.jpg')
 def serve_doctors_hero():
