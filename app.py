@@ -14,8 +14,10 @@ if BACKEND_DIR not in sys.path:
 
 from backend.app import app
 
-# Export application for WSGI servers
+# Export application across all WSGI & serverless conventions
+app = app
 application = app
+handler = app
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))

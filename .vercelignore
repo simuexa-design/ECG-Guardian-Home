@@ -10,6 +10,15 @@
 .git
 .github
 
+# Python caches and virtual environments
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+.pytest_cache/
+
 # Heavy training datasets & raw benchmarks
 ptbxl_data/
 models_saved/

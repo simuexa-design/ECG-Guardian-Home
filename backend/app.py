@@ -59,10 +59,28 @@ except (ImportError, Exception) as e:
     def load_trained_model():
         return None, None
 
+# Auto-detect templates directory across local and serverless execution
+possible_template_dirs = [
+    os.path.join(PROJECT_ROOT, 'templates'),
+    os.path.join(CURRENT_DIR, 'templates'),
+    os.path.join(os.getcwd(), 'templates'),
+    '/var/task/templates'
+]
+template_dir = next((d for d in possible_template_dirs if os.path.isdir(d)), os.path.join(PROJECT_ROOT, 'templates'))
+
+# Auto-detect static directory across local and serverless execution
+possible_static_dirs = [
+    os.path.join(PROJECT_ROOT, 'static'),
+    os.path.join(CURRENT_DIR, 'static'),
+    os.path.join(os.getcwd(), 'static'),
+    '/var/task/static'
+]
+static_dir = next((d for d in possible_static_dirs if os.path.isdir(d)), os.path.join(PROJECT_ROOT, 'static'))
+
 app = Flask(
     __name__,
-    template_folder=os.path.join(PROJECT_ROOT, 'templates'),
-    static_folder=os.path.join(PROJECT_ROOT, 'static')
+    template_folder=template_dir,
+    static_folder=static_dir
 )
 CORS(app)
 app.config['TEMPLATES_AUTO_RELOAD'] = True
@@ -254,6 +272,8 @@ def get_active_model():
 
 
 @app.route('/')
+@app.route('/api/index')
+@app.route('/api/index.py')
 def index():
     """Renders main Medical AI web interface (ECG Guardian UI/UX)."""
     target_view = request.args.get('view', 'landing')
@@ -270,15 +290,28 @@ def classic_view():
 @app.route('/images/doctors-hero.jpg')
 def serve_doctors_hero():
     """Serves hero medical image for ECG Guardian landing view."""
-    return send_from_directory(os.path.join(PROJECT_ROOT, 'static'), 'doctors-hero.jpg')
+    return send_from_directory(static_dir, 'doctors-hero.jpg')
 
 
 @app.route('/images/<path:filename>')
 def serve_images(filename):
-    img_dir = os.path.join(PROJECT_ROOT, 'static', 'images')
+    img_dir = os.path.join(static_dir, 'images')
     if os.path.exists(os.path.join(img_dir, filename)):
         return send_from_directory(img_dir, filename)
-    return send_from_directory(os.path.join(PROJECT_ROOT, 'static'), filename)
+    return send_from_directory(static_dir, filename)
+
+
+@app.route('/static/<path:filename>')
+def serve_static(filename):
+    return send_from_directory(static_dir, filename)
+
+
+@app.errorhandler(404)
+def handle_404(e):
+    """Graceful SPA fallback for non-API routes."""
+    if request.path.startswith('/api/'):
+        return jsonify({'error': 'Endpoint not found', 'path': request.path}), 404
+    return render_template('index.html', active_view='landing')
 
 
 @app.route('/api/health', methods=['GET'])

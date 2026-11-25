@@ -15,4 +15,7 @@ if BACKEND_DIR not in sys.path:
 
 from backend.app import app
 
+# Export application for all serverless conventions
+app = app
 application = app
+handler = app
