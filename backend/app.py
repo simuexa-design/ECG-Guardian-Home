@@ -272,8 +272,6 @@ def get_active_model():
 
 
 @app.route('/')
-@app.route('/api/index')
-@app.route('/api/index.py')
 def index():
     """Renders main Medical AI web interface (ECG Guardian UI/UX)."""
     target_view = request.args.get('view', 'landing')

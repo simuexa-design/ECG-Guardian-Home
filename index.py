@@ -23,14 +23,14 @@ class VercelPathFixMiddleware:
         if path in ('/api/index', '/api/index.py', '/api', '/api/'):
             orig = (
                 environ.get('HTTP_X_FORWARDED_URI') or
-                environ.get('HTTP_X_MATCHED_PATH') or
                 environ.get('HTTP_X_ORIGINAL_URI') or
+                environ.get('HTTP_X_MATCHED_PATH') or
                 environ.get('RAW_URI') or
                 environ.get('REQUEST_URI')
             )
             if orig:
                 orig_clean = orig.split('?')[0]
-                if orig_clean and orig_clean not in ('/api/index', '/api/index.py', '/api'):
+                if orig_clean and orig_clean not in ('/api/index', '/api/index.py', '/api', '/api/'):
                     environ['PATH_INFO'] = orig_clean
                 else:
                     environ['PATH_INFO'] = '/'
