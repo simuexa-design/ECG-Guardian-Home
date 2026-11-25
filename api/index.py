@@ -15,7 +15,43 @@ if BACKEND_DIR not in sys.path:
 
 from backend.app import app
 
-# Export application for all serverless conventions
-app = app
+
+class VercelPathFixMiddleware:
+    """
+    WSGI Middleware to fix PATH_INFO on Vercel Serverless Functions.
+    Vercel internal rewrites (/api/index or /api/index.py) can mask the
+    client's intended route (e.g. /, /api/status, /classic, /?view=...).
+    """
+    def __init__(self, wsgi_app):
+        self.wsgi_app = wsgi_app
+
+    def __call__(self, environ, start_response):
+        path = environ.get('PATH_INFO', '')
+        
+        # When Vercel sets the rewritten internal function path as PATH_INFO:
+        if path in ('/api/index', '/api/index.py', '/api', '/api/'):
+            orig = (
+                environ.get('HTTP_X_FORWARDED_URI') or
+                environ.get('HTTP_X_MATCHED_PATH') or
+                environ.get('HTTP_X_ORIGINAL_URI') or
+                environ.get('RAW_URI') or
+                environ.get('REQUEST_URI')
+            )
+            if orig:
+                orig_clean = orig.split('?')[0]
+                if orig_clean and orig_clean not in ('/api/index', '/api/index.py', '/api'):
+                    environ['PATH_INFO'] = orig_clean
+                else:
+                    environ['PATH_INFO'] = '/'
+            else:
+                environ['PATH_INFO'] = '/'
+
+        return self.wsgi_app(environ, start_response)
+
+
+# Apply middleware to Flask WSGI callable
+app.wsgi_app = VercelPathFixMiddleware(app.wsgi_app)
+
+# Export application across all standard serverless conventions
 application = app
 handler = app

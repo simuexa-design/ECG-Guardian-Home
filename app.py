@@ -14,8 +14,35 @@ if BACKEND_DIR not in sys.path:
 
 from backend.app import app
 
-# Export application across all WSGI & serverless conventions
-app = app
+
+class VercelPathFixMiddleware:
+    def __init__(self, wsgi_app):
+        self.wsgi_app = wsgi_app
+
+    def __call__(self, environ, start_response):
+        path = environ.get('PATH_INFO', '')
+        if path in ('/api/index', '/api/index.py', '/api', '/api/'):
+            orig = (
+                environ.get('HTTP_X_FORWARDED_URI') or
+                environ.get('HTTP_X_MATCHED_PATH') or
+                environ.get('HTTP_X_ORIGINAL_URI') or
+                environ.get('RAW_URI') or
+                environ.get('REQUEST_URI')
+            )
+            if orig:
+                orig_clean = orig.split('?')[0]
+                if orig_clean and orig_clean not in ('/api/index', '/api/index.py', '/api'):
+                    environ['PATH_INFO'] = orig_clean
+                else:
+                    environ['PATH_INFO'] = '/'
+            else:
+                environ['PATH_INFO'] = '/'
+
+        return self.wsgi_app(environ, start_response)
+
+
+app.wsgi_app = VercelPathFixMiddleware(app.wsgi_app)
+
 application = app
 handler = app
 
