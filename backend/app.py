@@ -744,29 +744,90 @@ def analyze_ecg():
     })
 
 
-@app.route('/api/patients', methods=['GET'])
-def get_patients():
-    """Returns cardiology patient roster."""
+CLINICAL_APPOINTMENTS = [
+    {'id': 'APT-1', 'patient': 'Willy McKee', 'doctor': 'Dr. Sonali Patel', 'date': '2026-11-25 09:30', 'type': 'Post-MI Follow-up'},
+    {'id': 'APT-2', 'patient': 'Rajesh Kumar', 'doctor': 'Dr. Sonali Patel', 'date': '2026-11-25 11:00', 'type': 'AFib Telemetry Review'}
+]
+
+
+@app.route('/api/patients', methods=['GET', 'POST'])
+def handle_patients():
+    """Returns cardiology patient roster or registers a new patient."""
+    global DEMO_PATIENTS
+    if request.method == 'POST':
+        data = request.get_json(silent=True) or {}
+        new_id = data.get('id') or data.get('patient_id') or f"PAT-{1046 + len(DEMO_PATIENTS)}"
+        mrn = data.get('mrn') or f"MRN-{np.random.randint(100000, 999999)}"
+        new_patient = {
+            'id': new_id,
+            'patient_id': new_id,
+            'mrn': mrn,
+            'hospital_mrn': mrn,
+            'name': data.get('name', 'Anonymous Patient'),
+            'age': data.get('age', 50),
+            'gender': data.get('gender') or data.get('sex', 'Unknown'),
+            'sex': data.get('gender') or data.get('sex', 'Unknown'),
+            'blood_type': data.get('blood', 'O+'),
+            'blood': data.get('blood', 'O+'),
+            'ward': data.get('ward', 'Cardio-OPD'),
+            'attending_physician': data.get('attending_physician', 'Dr. Sonali Patel'),
+            'admission_date': data.get('admission_date', '2026-11-25'),
+            'status': data.get('status', 'Registered'),
+            'clinical_history': data.get('clinical_history', 'No prior records submitted.'),
+            'allergies': data.get('allergies', 'None documented'),
+            'conditions': data.get('conditions', 'Pending initial assessment'),
+            'medications': data.get('meds', 'None documented'),
+            'cardiac': data.get('cardiac', 'Under Diagnostic Review'),
+            'latest_finding': data.get('latest_finding', 'Assessment Pending'),
+            'vital_signs': data.get('vital_signs', {'heart_rate': 72, 'systolic_bp': 120, 'diastolic_bp': 80})
+        }
+        DEMO_PATIENTS.insert(0, new_patient)
+        return jsonify({
+            'status': 'SUCCESS',
+            'message': f"Patient {new_patient['name']} registered successfully.",
+            'patient': new_patient
+        }), 201
+
+    limit = request.args.get('limit', type=int)
+    patients_list = DEMO_PATIENTS[:limit] if limit else DEMO_PATIENTS
     return jsonify({
         'status': 'SUCCESS',
-        'patients': DEMO_PATIENTS,
+        'patients': patients_list,
         'count': len(DEMO_PATIENTS)
     })
 
 
-@app.route('/api/patients/<pat_id>', methods=['GET'])
-def get_patient(pat_id):
-    """Returns a specific patient record."""
-    pat = next((p for p in DEMO_PATIENTS if p['id'] == pat_id or p['mrn'] == pat_id), DEMO_PATIENTS[0])
-    return jsonify({
-        'status': 'SUCCESS',
-        'patient': pat
-    })
+@app.route('/api/patients/<pat_id>', methods=['GET', 'PUT', 'DELETE'])
+def handle_single_patient(pat_id):
+    """Retrieves, updates, or archives a specific patient record."""
+    global DEMO_PATIENTS
+    for idx, p in enumerate(DEMO_PATIENTS):
+        if p['id'] == pat_id or p['mrn'] == pat_id:
+            if request.method == 'PUT':
+                update_data = request.get_json(silent=True) or {}
+                p.update(update_data)
+                return jsonify({'status': 'SUCCESS', 'message': 'Patient updated successfully.', 'patient': p})
+            elif request.method == 'DELETE':
+                removed = DEMO_PATIENTS.pop(idx)
+                return jsonify({'status': 'SUCCESS', 'message': 'Patient archived.', 'patient': removed})
+            return jsonify({'status': 'SUCCESS', 'patient': p})
+
+    if request.method == 'GET' and DEMO_PATIENTS:
+        return jsonify({'status': 'SUCCESS', 'patient': DEMO_PATIENTS[0]})
+    return jsonify({'error': f'Patient {pat_id} not found.'}), 404
 
 
-@app.route('/api/reports', methods=['GET'])
-def get_reports():
-    """Returns list of generated clinical reports."""
+@app.route('/api/reports', methods=['GET', 'POST'])
+def handle_reports():
+    """Returns list of generated clinical reports or archives new report."""
+    global DEMO_REPORTS
+    if request.method == 'POST':
+        rep_data = request.get_json(silent=True) or {}
+        new_rep_id = rep_data.get('report_id') or f"REP-2026-{1046 + len(DEMO_REPORTS)}"
+        rep_data['report_id'] = new_rep_id
+        DEMO_REPORTS.insert(0, rep_data)
+        return jsonify({'status': 'SUCCESS', 'report_id': new_rep_id, 'report': rep_data}), 201
+
     return jsonify({
         'status': 'SUCCESS',
         'reports': DEMO_REPORTS
@@ -776,7 +837,9 @@ def get_reports():
 @app.route('/api/reports/<report_id>', methods=['GET'])
 def get_report(report_id):
     """Returns specific report metadata."""
-    rep = next((r for r in DEMO_REPORTS if r['report_id'] == report_id), DEMO_REPORTS[0])
+    rep = next((r for r in DEMO_REPORTS if r.get('report_id') == report_id), None)
+    if not rep and DEMO_REPORTS:
+        rep = DEMO_REPORTS[0]
     return jsonify({
         'status': 'SUCCESS',
         'report': rep
@@ -821,14 +884,26 @@ def save_review():
 @app.route('/api/appointments', methods=['GET', 'POST'])
 @app.route('/api/appointments/<apt_id>', methods=['GET', 'DELETE'])
 def handle_appointments(apt_id=None):
-    """Handles cardiology clinic appointments."""
-    return jsonify({
-        'status': 'SUCCESS',
-        'appointments': [
-            {'id': 'APT-1', 'patient': 'Willy McKee', 'doctor': 'Dr. Sonali Patel', 'date': '2026-11-25 09:30', 'type': 'Post-MI Follow-up'},
-            {'id': 'APT-2', 'patient': 'Rajesh Kumar', 'doctor': 'Dr. Sonali Patel', 'date': '2026-11-25 11:00', 'type': 'AFib Telemetry Review'}
-        ]
-    })
+    """Handles cardiology clinic appointments with full in-memory persistence."""
+    global CLINICAL_APPOINTMENTS
+    if request.method == 'POST':
+        apt_data = request.get_json(silent=True) or {}
+        new_id = apt_data.get('id') or f"APT-{len(CLINICAL_APPOINTMENTS) + 1}"
+        apt_data['id'] = new_id
+        CLINICAL_APPOINTMENTS.append(apt_data)
+        return jsonify({'status': 'SUCCESS', 'appointment': apt_data, 'appointments': CLINICAL_APPOINTMENTS}), 201
+
+    if request.method == 'DELETE' and apt_id:
+        CLINICAL_APPOINTMENTS = [a for a in CLINICAL_APPOINTMENTS if a.get('id') != apt_id]
+        return jsonify({'status': 'SUCCESS', 'message': f'Appointment {apt_id} removed.', 'appointments': CLINICAL_APPOINTMENTS})
+
+    if apt_id:
+        apt = next((a for a in CLINICAL_APPOINTMENTS if a.get('id') == apt_id), None)
+        if apt:
+            return jsonify({'status': 'SUCCESS', 'appointment': apt})
+        return jsonify({'error': f'Appointment {apt_id} not found.'}), 404
+
+    return jsonify(CLINICAL_APPOINTMENTS)
 
 
 # ---------------------------------------------------------
