@@ -282,8 +282,8 @@ def index():
 
 @app.route('/classic')
 def classic_view():
-    """Renders the classic 12-lead Canvas Medical AI interface with Noise Studio."""
-    return render_template('index_classic.html')
+    """Redirects legacy classic link to main unified ECG Guardian interface."""
+    return render_template('index.html', active_view='landing')
 
 
 @app.route('/doctors-hero.jpg')
@@ -383,12 +383,19 @@ def get_dashboard_stats():
     })
 
 
-@app.route('/api/auth/login', methods=['POST'])
-@app.route('/api/auth/register', methods=['POST'])
-@app.route('/api/auth/google', methods=['POST'])
+@app.route('/api/auth/login', methods=['GET', 'POST', 'OPTIONS'])
+@app.route('/api/auth/register', methods=['GET', 'POST', 'OPTIONS'])
+@app.route('/api/auth/google', methods=['GET', 'POST', 'OPTIONS'])
 def auth_login():
     """Authenticates doctor or patient for the session."""
-    data = request.get_json(silent=True) or {}
+    data = {}
+    if request.is_json:
+        data = request.get_json(silent=True) or {}
+    elif request.form:
+        data = request.form.to_dict()
+    elif request.args:
+        data = request.args.to_dict()
+
     email = (data.get('email') or '').lower()
     role = (data.get('role') or '').upper()
 
@@ -399,24 +406,24 @@ def auth_login():
             'mrn': 'MRN-5F2298',
             'patient_code': 'MRN-5F2298',
             'registration_number': 'MRN-5F2298',
-            'name': 'Raj Verma',
-            'full_name': 'Raj Verma',
+            'name': data.get('full_name') or 'Raj Verma',
+            'full_name': data.get('full_name') or 'Raj Verma',
             'role': 'PATIENT',
-            'email': 'rajverma@gmail.com'
+            'email': email or 'rajverma@gmail.com'
         }
     else:
         user = {
             'id': 'DOC-SONALI',
             'user_id': 'DOC-SONALI',
-            'name': 'Dr. Sonali Patel',
-            'full_name': 'Dr. Sonali Patel',
+            'name': data.get('full_name') or 'Dr. Sonali Patel',
+            'full_name': data.get('full_name') or 'Dr. Sonali Patel',
             'role': 'DOCTOR',
             'title': 'Chief of Cardiology & Lead AI Researcher',
             'role_title': 'Chief of Cardiology',
             'hospital': 'Metropolitan Heart & Vascular Institute',
             'hospital_id': 'HOSP-APEX',
-            'registration_number': 'MD/34667',
-            'email': 'dr.sonali@hospital.org'
+            'registration_number': data.get('registration_number') or 'MD/34667',
+            'email': email or 'dr.sonali@hospital.org'
         }
     return jsonify({
         'status': 'SUCCESS',
