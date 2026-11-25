@@ -17,7 +17,7 @@ PROJECT_ROOT = os.path.dirname(CURRENT_DIR)
 if CURRENT_DIR not in sys.path:
     sys.path.insert(0, CURRENT_DIR)
 
-from flask import Flask, request, jsonify, render_template, send_from_directory, send_file
+from flask import Flask, request, jsonify, render_template, send_from_directory, send_file, redirect
 from flask_cors import CORS
 
 from preprocessing.filters import full_ecg_preprocessing
@@ -288,6 +288,11 @@ def classic_view():
 presentation_dir = os.path.join(PROJECT_ROOT, 'presentation_site')
 
 @app.route('/presentation')
+def redirect_presentation_slash():
+    """Ensures relative asset links resolve under /presentation/."""
+    return redirect('/presentation/', code=302)
+
+
 @app.route('/presentation/')
 def serve_presentation_index():
     """Serves the interactive 16:9 medical presentation deck."""

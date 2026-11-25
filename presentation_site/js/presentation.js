@@ -1,166 +1,236 @@
 /**
- * ECG Guardian Presentation Deck Engine
- * Interactive Keyboard, Touch, Navigation & Print Controls
+ * ECG Guardian · Interactive Web Presentation Engine
+ * Powered by Anime.js choreography + Three.js reactive telemetry stage
  */
 
 document.addEventListener('DOMContentLoaded', () => {
   const slides = Array.from(document.querySelectorAll('.slide'));
   const totalSlides = slides.length;
-  let currentSlideIndex = 0;
+  let currentIndex = 0;
+  let wheelLocked = false;
 
-  const progressBar = document.getElementById('progressBar');
-  const slideCounterCurrent = document.getElementById('currentSlideNum');
-  const slideCounterTotal = document.getElementById('totalSlidesNum');
-  const slideCategoryElem = document.getElementById('headerCategory');
+  const progressFill = document.getElementById('topProgressFill');
+  const headerSectionLabel = document.getElementById('headerSectionLabel');
+  const counterCurrent = document.getElementById('counterCurrent');
+  const counterTotal = document.getElementById('counterTotal');
 
   const btnPrev = document.getElementById('btnPrev');
   const btnNext = document.getElementById('btnNext');
+  const btnStartDeck = document.getElementById('btnStartDeck');
   const btnOverview = document.getElementById('btnOverview');
   const btnFullscreen = document.getElementById('btnFullscreen');
-  const btnPrint = document.getElementById('btnPrint');
+  const btnExportPdf = document.getElementById('btnExportPdf');
 
-  const overviewModal = document.getElementById('overviewModal');
-  const closeOverviewBtn = document.getElementById('closeOverview');
+  const slideRail = document.getElementById('slideRail');
+  const overviewOverlay = document.getElementById('overviewOverlay');
+  const closeOverview = document.getElementById('closeOverview');
   const overviewGrid = document.getElementById('overviewGrid');
 
-  // Initialize total slide count display
-  if (slideCounterTotal) {
-    slideCounterTotal.textContent = String(totalSlides).padStart(2, '0');
-  }
+  const lightboxModal = document.getElementById('lightboxModal');
+  const lightboxImg = document.getElementById('lightboxImg');
 
-  // Build Overview Thumbnails
-  if (overviewGrid) {
-    slides.forEach((slide, index) => {
-      const titleElem = slide.querySelector('.slide-title') || slide.querySelector('.main-title');
-      const catElem = slide.querySelector('.slide-category') || slide.querySelector('.badge-research');
-      const titleText = titleElem ? titleElem.innerText.replace(/\s+/g, ' ').trim() : `Slide ${index + 1}`;
-      const catText = catElem ? catElem.innerText.trim() : 'Overview';
+  if (counterTotal) counterTotal.textContent = String(totalSlides).padStart(2, '0');
 
-      const thumb = document.createElement('div');
-      thumb.className = `thumb-card ${index === 0 ? 'active' : ''}`;
-      thumb.innerHTML = `
-        <div class="thumb-num">SLIDE ${String(index + 1).padStart(2, '0')} · ${catText}</div>
-        <div class="thumb-title">${titleText}</div>
+  // Build Right Slide Rail & Overview Grid
+  slides.forEach((slide, index) => {
+    const titleEl = slide.querySelector('.slide-h2') || slide.querySelector('.hero-title');
+    const catEl = slide.dataset.category || 'Overview';
+    const cleanTitle = titleEl ? titleEl.innerText.replace(/\s+/g, ' ').trim() : `Slide ${index + 1}`;
+
+    if (slideRail) {
+      const dot = document.createElement('button');
+      dot.className = `rail-dot ${index === 0 ? 'active' : ''}`;
+      dot.setAttribute('data-title', `${String(index + 1).padStart(2, '0')} · ${cleanTitle}`);
+      dot.setAttribute('aria-label', `Go to slide ${index + 1}`);
+      dot.addEventListener('click', () => goToSlide(index));
+      slideRail.appendChild(dot);
+    }
+
+    if (overviewGrid) {
+      const item = document.createElement('div');
+      item.className = `overview-item ${index === 0 ? 'active' : ''}`;
+      item.innerHTML = `
+        <div class="ov-num">${String(index + 1).padStart(2, '0')} · ${catEl.toUpperCase()}</div>
+        <div class="ov-title">${cleanTitle}</div>
       `;
-      thumb.addEventListener('click', () => {
+      item.addEventListener('click', () => {
         goToSlide(index);
-        closeOverview();
+        toggleOverview(false);
       });
-      overviewGrid.appendChild(thumb);
+      overviewGrid.appendChild(item);
+    }
+  });
+
+  // Continuous SVG ECG Pulse Drawing Animation on Slide 1
+  const ecgLine = document.getElementById('heroEcgLine');
+  if (ecgLine && typeof anime !== 'undefined') {
+    const pathLen = ecgLine.getTotalLength();
+    ecgLine.style.strokeDasharray = `${pathLen * 0.45} ${pathLen * 0.55}`;
+    anime({
+      targets: ecgLine,
+      strokeDashoffset: [pathLen, 0],
+      easing: 'linear',
+      duration: 2400,
+      loop: true
     });
   }
 
-  // Slide Navigation Function
+  // Animate Slide Elements with Anime.js
+  function animateSlideIn(slideEl, direction = 1) {
+    const targets = slideEl.querySelectorAll('.anim-item');
+    if (!targets.length || typeof anime === 'undefined') return;
+
+    anime.remove(targets);
+    anime({
+      targets,
+      translateY: [direction >= 0 ? 22 : -22, 0],
+      opacity: [0, 1],
+      scale: [0.985, 1],
+      duration: 680,
+      delay: anime.stagger(65, { start: 40 }),
+      easing: 'easeOutExpo'
+    });
+
+    // Numeric roll-up for elements with data-count
+    const counters = slideEl.querySelectorAll('[data-count]');
+    counters.forEach((el) => {
+      const endVal = parseFloat(el.dataset.count);
+      const decimals = parseInt(el.dataset.decimals || '0', 10);
+      const suffix = el.dataset.suffix || '';
+      const obj = { val: 0 };
+      anime.remove(obj);
+      anime({
+        targets: obj,
+        val: endVal,
+        duration: 1100,
+        delay: 180,
+        easing: 'easeOutQuart',
+        update() {
+          el.textContent = obj.val.toFixed(decimals) + suffix;
+        }
+      });
+    });
+  }
+
   function goToSlide(newIndex) {
     if (newIndex < 0) newIndex = 0;
     if (newIndex >= totalSlides) newIndex = totalSlides - 1;
+    const direction = newIndex >= currentIndex ? 1 : -1;
 
-    slides.forEach((slide, i) => {
-      slide.classList.remove('active', 'prev');
-      if (i === newIndex) {
-        slide.classList.add('active');
-      } else if (i < newIndex) {
-        slide.classList.add('prev');
-      }
+    slides.forEach((s, i) => {
+      s.classList.toggle('active', i === newIndex);
     });
 
-    currentSlideIndex = newIndex;
+    currentIndex = newIndex;
 
-    // Update Counter
-    if (slideCounterCurrent) {
-      slideCounterCurrent.textContent = String(currentSlideIndex + 1).padStart(2, '0');
+    // Update UI indicators
+    if (counterCurrent) counterCurrent.textContent = String(currentIndex + 1).padStart(2, '0');
+    if (progressFill) progressFill.style.width = `${((currentIndex + 1) / totalSlides) * 100}%`;
+    if (headerSectionLabel) {
+      headerSectionLabel.textContent = (slides[currentIndex].dataset.category || 'Overview').toUpperCase();
     }
 
-    // Update Progress Bar
-    if (progressBar) {
-      const progressPercent = ((currentSlideIndex + 1) / totalSlides) * 100;
-      progressBar.style.width = `${progressPercent}%`;
+    if (slideRail) {
+      Array.from(slideRail.children).forEach((d, i) => d.classList.toggle('active', i === currentIndex));
     }
-
-    // Update Header Category
-    const activeSlide = slides[currentSlideIndex];
-    if (activeSlide && slideCategoryElem) {
-      const cat = activeSlide.dataset.category || 'Clinical Telemetry Deck';
-      slideCategoryElem.textContent = cat.toUpperCase();
-    }
-
-    // Update Overview Active Thumbnail
     if (overviewGrid) {
-      const thumbs = overviewGrid.querySelectorAll('.thumb-card');
-      thumbs.forEach((t, i) => {
-        t.classList.toggle('active', i === currentSlideIndex);
-      });
+      Array.from(overviewGrid.children).forEach((item, i) => item.classList.toggle('active', i === currentIndex));
     }
 
-    // Update URL hash without scroll
-    history.replaceState(null, '', `#slide-${currentSlideIndex + 1}`);
+    if (btnPrev) btnPrev.disabled = currentIndex === 0;
+    if (btnNext) btnNext.disabled = currentIndex === totalSlides - 1;
 
-    // Update Prev/Next button states
-    if (btnPrev) btnPrev.disabled = currentSlideIndex === 0;
-    if (btnNext) btnNext.disabled = currentSlideIndex === totalSlides - 1;
+    // Notify Three.js 3D Camera
+    if (window.ThreeTelemetryStage) {
+      window.ThreeTelemetryStage.setSlideTarget(currentIndex);
+    }
+
+    // Run Anime.js choreography
+    animateSlideIn(slides[currentIndex], direction);
+
+    // Sync hash
+    history.replaceState(null, '', `#slide-${currentIndex + 1}`);
   }
 
   function nextSlide() {
-    if (currentSlideIndex < totalSlides - 1) {
-      goToSlide(currentSlideIndex + 1);
-    }
+    if (currentIndex < totalSlides - 1) goToSlide(currentIndex + 1);
   }
 
   function prevSlide() {
-    if (currentSlideIndex > 0) {
-      goToSlide(currentSlideIndex - 1);
-    }
+    if (currentIndex > 0) goToSlide(currentIndex - 1);
   }
 
-  function toggleOverview() {
-    if (overviewModal) {
-      overviewModal.classList.toggle('open');
-    }
-  }
-
-  function closeOverview() {
-    if (overviewModal) {
-      overviewModal.classList.remove('open');
-    }
+  function toggleOverview(forceState) {
+    if (!overviewOverlay) return;
+    const shouldOpen = typeof forceState === 'boolean' ? forceState : !overviewOverlay.classList.contains('open');
+    overviewOverlay.classList.toggle('open', shouldOpen);
   }
 
   function toggleFullscreen() {
     if (!document.fullscreenElement) {
       document.documentElement.requestFullscreen().catch(() => {});
-    } else {
-      if (document.exitFullscreen) {
-        document.exitFullscreen();
-      }
+    } else if (document.exitFullscreen) {
+      document.exitFullscreen();
     }
   }
 
-  // Event Listeners
-  if (btnNext) btnNext.addEventListener('click', nextSlide);
-  if (btnPrev) btnPrev.addEventListener('click', prevSlide);
-  if (btnOverview) btnOverview.addEventListener('click', toggleOverview);
-  if (closeOverviewBtn) closeOverviewBtn.addEventListener('click', closeOverview);
-  if (btnFullscreen) btnFullscreen.addEventListener('click', toggleFullscreen);
-  if (btnPrint) btnPrint.addEventListener('click', () => window.print());
-
-  // Keyboard Shortcuts
-  window.addEventListener('keydown', (e) => {
-    // If overview is open, Escape closes it
-    if (overviewModal && overviewModal.classList.contains('open')) {
-      if (e.key === 'Escape') {
-        closeOverview();
-        return;
+  // Lightbox Zoom on Screenshots
+  document.querySelectorAll('.zoomable-img').forEach((container) => {
+    container.addEventListener('click', () => {
+      const img = container.querySelector('img');
+      if (img && lightboxModal && lightboxImg) {
+        lightboxImg.src = img.src;
+        lightboxImg.alt = img.alt;
+        lightboxModal.classList.add('open');
       }
+    });
+  });
+
+  if (lightboxModal) {
+    lightboxModal.addEventListener('click', () => lightboxModal.classList.remove('open'));
+  }
+
+  // Button Events
+  if (btnPrev) btnPrev.addEventListener('click', prevSlide);
+  if (btnNext) btnNext.addEventListener('click', nextSlide);
+  if (btnStartDeck) btnStartDeck.addEventListener('click', () => goToSlide(1));
+  if (btnOverview) btnOverview.addEventListener('click', () => toggleOverview());
+  if (closeOverview) closeOverview.addEventListener('click', () => toggleOverview(false));
+  if (btnFullscreen) btnFullscreen.addEventListener('click', toggleFullscreen);
+  if (btnExportPdf) btnExportPdf.addEventListener('click', () => window.print());
+
+  // Debounced Mouse Wheel / Trackpad Navigation
+  window.addEventListener('wheel', (e) => {
+    if (overviewOverlay?.classList.contains('open') || lightboxModal?.classList.contains('open')) return;
+    if (wheelLocked || Math.abs(e.deltaY) < 28) return;
+    wheelLocked = true;
+    if (e.deltaY > 0) nextSlide();
+    else prevSlide();
+    setTimeout(() => { wheelLocked = false; }, 520);
+  }, { passive: true });
+
+  // Keyboard Navigation
+  window.addEventListener('keydown', (e) => {
+    if (lightboxModal?.classList.contains('open')) {
+      if (e.key === 'Escape') lightboxModal.classList.remove('open');
+      return;
+    }
+    if (overviewOverlay?.classList.contains('open')) {
+      if (e.key === 'Escape' || e.key === 'Tab' || e.key === 'o' || e.key === 'O') {
+        e.preventDefault();
+        toggleOverview(false);
+      }
+      return;
     }
 
     switch (e.key) {
       case 'ArrowRight':
       case 'ArrowDown':
       case 'PageDown':
-      case ' ': // Spacebar
+      case ' ':
         e.preventDefault();
         nextSlide();
         break;
-
       case 'ArrowLeft':
       case 'ArrowUp':
       case 'PageUp':
@@ -168,70 +238,51 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
         prevSlide();
         break;
-
       case 'Home':
         e.preventDefault();
         goToSlide(0);
         break;
-
       case 'End':
         e.preventDefault();
         goToSlide(totalSlides - 1);
         break;
-
       case 'f':
       case 'F':
         toggleFullscreen();
         break;
-
       case 'o':
       case 'O':
+      case 'g':
+      case 'G':
       case 'Tab':
         e.preventDefault();
         toggleOverview();
         break;
-
       case 'p':
       case 'P':
-        // Ctrl+P or plain P to trigger print
         if (!e.ctrlKey && !e.metaKey) {
           e.preventDefault();
           window.print();
         }
         break;
-
-      case 'Escape':
-        closeOverview();
-        break;
     }
   });
 
-  // Touch Swipe Support
+  // Touch Swipe Navigation
   let touchStartX = 0;
-  let touchEndX = 0;
   window.addEventListener('touchstart', (e) => {
     touchStartX = e.changedTouches[0].screenX;
   }, { passive: true });
-
   window.addEventListener('touchend', (e) => {
-    touchEndX = e.changedTouches[0].screenX;
-    const diff = touchEndX - touchStartX;
-    if (Math.abs(diff) > 50) {
+    const diff = e.changedTouches[0].screenX - touchStartX;
+    if (Math.abs(diff) > 55) {
       if (diff < 0) nextSlide();
       else prevSlide();
     }
   }, { passive: true });
 
-  // Read initial hash if present (#slide-3)
-  const hash = window.location.hash;
-  if (hash && hash.startsWith('#slide-')) {
-    const slideNum = parseInt(hash.replace('#slide-', ''), 10);
-    if (!isNaN(slideNum) && slideNum >= 1 && slideNum <= totalSlides) {
-      goToSlide(slideNum - 1);
-    } else {
-      goToSlide(0);
-    }
-  } else {
-    goToSlide(0);
-  }
+  // Initial Slide Load from URL Hash
+  const match = window.location.hash.match(/^#slide-(\d+)$/);
+  const startIdx = match ? Math.min(Math.max(parseInt(match[1], 10) - 1, 0), totalSlides - 1) : 0;
+  goToSlide(startIdx);
 });

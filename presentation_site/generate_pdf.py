@@ -1,9 +1,8 @@
 """
-Export ECG Guardian Presentation Deck to Publication-Grade PDF
-Uses Playwright with Microsoft Edge to render all 11 slides with exact 16:9 layout.
+Export ECG Guardian Presentation Website to 11-Page Widescreen PDF
+Uses Playwright with Microsoft Edge to render all 11 slides at 16:9 with zero overflow.
 """
 
-import os
 import sys
 import time
 from pathlib import Path
@@ -18,15 +17,14 @@ def export_deck_to_pdf():
         print(f"[-] Error: {html_path} does not exist!")
         sys.exit(1)
 
-    file_url = html_path.as_uri()
+    target_url = html_path.as_uri()
     print("=" * 70)
-    print("  ECG GUARDIAN PRESENTATION DECK -> PDF EXPORTER")
-    print(f"  Target URL: {file_url}")
-    print(f"  Output PDF: {output_pdf}")
+    print("  ECG GUARDIAN PRESENTATION WEBSITE -> PDF EXPORTER")
+    print(f"  Source: {target_url}")
+    print(f"  Output: {output_pdf}")
     print("=" * 70)
 
     with sync_playwright() as p:
-        print("[*] Launching Headless Microsoft Edge via Playwright...")
         browser = p.chromium.launch(
             channel="msedge",
             headless=True,
@@ -34,23 +32,28 @@ def export_deck_to_pdf():
         )
 
         context = browser.new_context(
-            viewport={"width": 1920, "height": 1080},
+            viewport={"width": 1600, "height": 900},
             device_scale_factor=2
         )
 
         page = context.new_page()
-        print("[*] Loading presentation deck...")
-        page.goto(file_url, wait_until="networkidle")
-
-        # Give web fonts and images a brief moment to stabilize
+        page.goto(target_url, wait_until="networkidle")
         time.sleep(1.5)
 
-        # Count total slides in DOM
         slide_count = page.evaluate("() => document.querySelectorAll('.slide').length")
-        print(f"[+] Verified {slide_count} slides loaded in DOM.")
+        print(f"[+] Verified {slide_count} slides loaded.")
 
-        print("[*] Generating 16:9 presentation PDF with zero margins...")
+        # Ensure numeric counters display final exact values before PDF snapshot
+        page.evaluate("""() => {
+            document.querySelectorAll('[data-count]').forEach(el => {
+                const decimals = parseInt(el.dataset.decimals || '0', 10);
+                const suffix = el.dataset.suffix || '';
+                el.textContent = parseFloat(el.dataset.count).toFixed(decimals) + suffix;
+            });
+        }""")
+
         page.emulate_media(media="print")
+        time.sleep(0.5)
 
         page.pdf(
             path=str(output_pdf),
@@ -65,9 +68,7 @@ def export_deck_to_pdf():
 
     if output_pdf.exists():
         size_kb = output_pdf.stat().st_size / 1024
-        print(f"[✓] SUCCESS! PDF successfully created: {output_pdf}")
-        print(f"    File Size: {size_kb:.1f} KB")
-        return str(output_pdf)
+        print(f"[✓] PDF generated: {output_pdf} ({size_kb:.1f} KB)")
     else:
         print("[-] PDF export failed.")
         sys.exit(1)
