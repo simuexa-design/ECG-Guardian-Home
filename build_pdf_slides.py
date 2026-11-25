@@ -54,7 +54,9 @@ class SlideNumberedCanvas(canvas.Canvas):
         self.restoreState()
 
 def build_pdf_presentation():
-    out_pdf = r"D:\ecg\ECG_Guardian_Clinical_Presentation.pdf"
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    out_pdf = os.path.join(base_dir, "ECG_Guardian_Clinical_Presentation.pdf")
+    presentation_site_pdf = os.path.join(base_dir, "presentation_site", "ECG_Guardian_Clinical_Presentation.pdf")
     doc = SimpleDocTemplate(
         out_pdf,
         pagesize=(PAGE_W, PAGE_H),
@@ -117,7 +119,9 @@ def build_pdf_presentation():
     )
 
     story = []
-    screens_dir = r"D:\ecg\static\images\screenshots"
+    screens_dir = os.path.join(base_dir, "presentation_site", "images", "screenshots")
+    if not os.path.exists(screens_dir):
+        screens_dir = os.path.join(base_dir, "static", "images", "screenshots")
 
     slides_meta = [
         # Slide 1: Title
@@ -375,7 +379,9 @@ def build_pdf_presentation():
             story.append(PageBreak())
 
     doc.build(story, canvasmaker=SlideNumberedCanvas)
-    print(f"PDF Presentation built successfully: {out_pdf}")
+    import shutil
+    shutil.copyfile(out_pdf, presentation_site_pdf)
+    print(f"PDF Presentation built successfully: {out_pdf} and {presentation_site_pdf}")
     return out_pdf
 
 if __name__ == "__main__":

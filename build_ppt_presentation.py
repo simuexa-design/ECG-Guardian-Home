@@ -28,7 +28,10 @@ def create_presentation():
     C_MUTED = RGBColor(148, 163, 184)   # Slate 400
     C_LIGHT = RGBColor(241, 245, 249)
 
-    screens_dir = r"D:\ecg\static\images\screenshots"
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    screens_dir = os.path.join(base_dir, "presentation_site", "images", "screenshots")
+    if not os.path.exists(screens_dir):
+        screens_dir = os.path.join(base_dir, "static", "images", "screenshots")
 
     def add_background(slide, color=C_NAVY):
         bg = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, 0, 0, Inches(13.333), Inches(7.5))
@@ -564,11 +567,19 @@ def create_presentation():
     p_close.space_before = Pt(14)
 
     # Save presentation
-    out_pptx = r"D:\ecg\ECG_Guardian_Clinical_Presentation.pptx"
-    prs.save(out_pptx)
-    print(f"Presentation saved successfully to: {out_pptx}")
+    presentation_site_pptx = os.path.join(base_dir, "presentation_site", "ECG_Guardian_Presentation_Deck.pptx")
+    prs.save(presentation_site_pptx)
+    print(f"Presentation saved successfully to: {presentation_site_pptx}")
+    
+    out_pptx = os.path.join(base_dir, "ECG_Guardian_Clinical_Presentation.pptx")
+    try:
+        prs.save(out_pptx)
+        print(f"Also updated: {out_pptx}")
+    except PermissionError:
+        print(f"Note: {out_pptx} is currently locked by another application (PowerPoint). Preserved presentation_site deck.")
+        
     print(f"Total Slides: {len(prs.slides)}")
-    return out_pptx
+    return presentation_site_pptx
 
 if __name__ == "__main__":
     create_presentation()
